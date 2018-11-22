@@ -7,7 +7,8 @@ import {log} from './log';
 let crons = new Array();
 
 const getDataFromApi = () => {
-  request(Constants.API_URL + Constants.API_GET_ALL_URL, ((error, response, body) => {
+  request(Constants.API_URL + Constants.API_GET_ALL_URL, {headers: {Authorization: process.env.KEY}},
+    ((error, response, body) => {
      if (error) {
        log.error(error);
      }
@@ -71,12 +72,14 @@ const getDataFromApi = () => {
 
 const check = (monitor: any) => {
   let isUp = false;
-  request(monitor.address, (error: Error, response: request.Response, body: any) => {
+  request(monitor.address, {headers: {Authorization: process.env.KEY}},
+    (error: Error, response: request.Response, body: any) => {
     if (response && response.statusCode == 200) {
       isUp = true;
     }
     request.post({url: Constants.API_URL +
-        Constants.API_POST_FEEDBACK_URL.replace('{monitor_id}', monitor._id), body:
+        Constants.API_POST_FEEDBACK_URL.replace('{monitor_id}', monitor._id),
+        headers: {Authorization: process.env.KEY}, body:
         {date: Date(), is_up: isUp, agent_id: monitor._id}, json: true},
         ((postError: Error, postResponse: request.Response, postBody: any) => {
           if (postError) {
